@@ -8,8 +8,8 @@ import org.springframework.boot.ApplicationRunner;
 //import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import com.example.demo.domain.Name;
-import com.example.demo.repository.NameController;
+import com.example.demo.domain.Case;
+import com.example.demo.repository.CaseRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,16 +17,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DataLoader implements ApplicationRunner {
 
-    private final NameController controller;
+    private final CaseRepository controller;
 
     /** {@inheritDoc} */
     @Override
     public void run(ApplicationArguments args) throws Exception {
     	System.out.println("DEMO: in app start - run");
         //final Long cnt = controller.count();
-		List<Name> nameList = controller.findAll();
+		List<Case> nameList = controller.findAll();
 		if (nameList != null) {
-			for(Name name: nameList) {
+			for(Case name: nameList) {
 				System.out.println(name);
 			}
 		} else {

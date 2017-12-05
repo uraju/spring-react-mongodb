@@ -12,7 +12,7 @@ import com.example.demo.domain.Name;
 
 @CrossOrigin
 @RestController
-@RequestMapping("search")
+@RequestMapping("namesearch")
 public class NameSearchController {
 	@Autowired
 	private  NameRepository nameRepo;
