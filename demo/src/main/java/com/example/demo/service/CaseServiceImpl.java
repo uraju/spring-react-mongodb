@@ -25,13 +25,17 @@ public class CaseServiceImpl implements CaseService {
     @Override
     public List<Case> findByLastName(String lastName) {
         log.info("Search by Last Name :{}", lastName);
-        final Query query = new Query(Criteria.where("users.lastName").is(lastName));  
+        // NOTE: Search starts with 'lastName', ignores case
+        final Query query = new Query(Criteria.where("user.lastName").regex("^"+lastName, "i"));  
+        log.info("Search mogodb query : ", query.toString());
         return this.mongoTemplate.find(query, Case.class);    }
 
     @Override
     public List<Case> findByFirstName(String firstName) {
         log.info("Search by First Name:{}", firstName);
-        final Query query = new Query(Criteria.where("users.firstName").is(firstName));  
+        // NOTE: Search contain 'firstName', returns, ignores case
+        final Query query = new Query(Criteria.where("user.firstName").regex(firstName+".*", "i"));  
+        log.info("Search mogodb query : ", query.toString());
         return this.mongoTemplate.find(query, Case.class);
     }
 

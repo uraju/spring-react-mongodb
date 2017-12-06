@@ -5,7 +5,6 @@
  */
 package com.example.demo.domain;
 
-import java.util.List;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -18,5 +17,5 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Case extends Node {
     private static final long serialVersionUID = 3L;
     private String caseId;
-    private List<User> users;
+    private User user;
 }
