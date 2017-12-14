@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import logo from '../assets/images/logo.svg';
-import { Route, Link } from 'react-router-dom';
+import { Route, NavLink} from 'react-router-dom';
 import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/omega/theme.css';
 import 'font-awesome/css/font-awesome.css';
@@ -17,13 +17,11 @@ class AppMenu extends Component {
   }
   render() {
     return (
-      <div className="nav">
-        <ul>
-        <li><Link to="/">Home</Link></li>
-        <li><Link to="/pageone">Page One</Link></li>
-        <li><Link to="/pagetwo">Page Two</Link></li>
-        </ul>
-      </div>
+      <ul className="nav">
+        <li><NavLink exact activeClassName="active" to="/" onlyActiveOnIndex>Home</NavLink></li>
+        <li><NavLink activeClassName="active" to="/pageone">Page One</NavLink></li>
+        <li><NavLink activeClassName="active" to="/pagetwo">Page Two</NavLink></li>
+      </ul>
     );
   }
 }
@@ -36,13 +34,11 @@ class App extends Component {
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">Welcome to React</h1>
         </header>
-        <div id="layout-content">
-          <Route exact path="/" component={Home} />
-          <Route path="/pageone" component={PageOne} />
-          <Route path="/pagetwo" component={PageTwo} />        
-        </div>
-        <div>
-          <AppMenu />
+        <AppMenu />
+        <div className="layout-content">
+          <Route exact path="/"  component={Home} />
+          <Route exact path="/pageone" component={PageOne} />
+          <Route exact path="/pagetwo" component={PageTwo} />        
         </div>
       </div>
     );
