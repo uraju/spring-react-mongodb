@@ -27,7 +27,9 @@ class App extends Component {
     this.setState({ssn: _ssn});
   }
   ignoreNumbers = (event) => {
-    if (event.key >= 0 && event.key <= 9) {
+    let _char = event.key;
+    let reg = new RegExp("[a-zA-Z ]")
+    if (!reg.test(_char)) {
       event.preventDefault();
     }
   }
