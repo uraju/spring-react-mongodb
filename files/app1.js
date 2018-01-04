@@ -12,22 +12,50 @@ class App extends Component {
       ,ssnf: ''
     }
   }  
-  ssnKeyPress(event) {
+  ssnKeyPress = (event) => {
     let _char = event.key;
-    let reg = new RegExp("[0-9]");
+    let reg = new RegExp("^\\d+$");
     if (!reg.test(_char)) {
       event.preventDefault();
     }
   }
   ignoreNumbers = (event) => {
     let _char = event.key;
-    let reg = new RegExp("[a-zA-Z ]")
+    let reg = new RegExp("[a-zA-Z ]");
     if (!reg.test(_char)) {
       event.preventDefault();
     }
   }
+  namePaste = (event) => {
+    let _data = event.clipboardData.getData('Text');
+    if (_data.length > 0) {
+      console.log(_data);
+      let reg = new RegExp("^[a-zA-Z ]+$");
+      if (!reg.test(_data)) {
+        event.preventDefault();
+        return;
+      }
+    }
+  }
+  ssnPaste = (event) => {
+    let _data = event.clipboardData.getData('Text');
+    if (_data.length > 0) {
+      let reg = new RegExp("^\\d+$");
+      if (!reg.test(_data)) {
+        event.preventDefault();
+        return;
+      }
+    }
+  }  
   ssnFormat = (event) => {
     let _ssn = event.target.value;
+    if (_ssn.length > 0) {
+      let reg = new RegExp("[0-9]");
+      if (!reg.test(_ssn)) {
+        event.preventDefault();
+        return;
+      }
+    }
     let _ssnf = '';
     switch(_ssn.length) {
       case 9:
@@ -59,13 +87,13 @@ class App extends Component {
         <div>
           <span className="ui-float-label">
               <label htmlFor="num-ssn">SSN: </label>
-              <InputText id="num-ssn" type="text" size="30" onKeyPress={this.ssnKeyPress.bind(this)} onChange={this.ssnFormat.bind(this)} onBlur={(e) => this.setState({ssn: e.target.value})} />
+              <InputText id="num-ssn" type="text" size="30" onPaste={this.ssnPaste.bind(this)} onKeyPress={this.ssnKeyPress.bind(this)} onChange={this.ssnFormat.bind(this)} onBlur={(e) => this.setState({ssn: e.target.value})} />
           </span>
         </div>
         <div>
           <span className="ui-float-label">
               <label htmlFor="num-ssn">Name: </label>
-              <InputText id="num-ssn" type="text" size="30" onKeyPress={this.ignoreNumbers} onChange={(e) => this.setState({name: e.target.value})} />
+              <InputText id="num-ssn" type="text" size="30" onPaste={this.namePaste.bind(this)} onKeyPress={this.ignoreNumbers} onChange={(e) => this.setState({name: e.target.value})} />
           </span>
         </div>
         <div>
