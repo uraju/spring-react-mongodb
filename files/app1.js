@@ -13,18 +13,11 @@ class App extends Component {
     }
   }  
   ssnKeyPress(event) {
-    // console.log("Pressed code" + event.code);
-    // console.log("Pressed Key" + event.key);
-    let check = true;
-    if (event.key >= 0 && event.key <= 9) {
-      check = false;
-    }
-    if(check) { // ignore the non numeric value
+    let _char = event.key;
+    let reg = new RegExp("[0-9]");
+    if (!reg.test(_char)) {
       event.preventDefault();
     }
-  }
-  ssnOnBlur = (_ssn) => {
-    this.setState({ssn: _ssn});
   }
   ignoreNumbers = (event) => {
     let _char = event.key;
