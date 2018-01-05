@@ -43,13 +43,6 @@ class App extends Component {
   }  
   ssnFormat = (event) => {
     let _ssn = event.target.value;
-    if (_ssn.length > 0) {
-      let reg = new RegExp("[0-9]");
-      if (!reg.test(_ssn)) {
-        event.preventDefault();
-        return;
-      }
-    }
     let _ssnf = '';
     switch(_ssn.length) {
       case 9:
