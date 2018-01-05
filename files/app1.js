@@ -12,40 +12,34 @@ class App extends Component {
       ,ssnf: ''
     }
   }  
-  ssnKeyPress = (event) => {
-    let _char = event.key;
+  numOnly = (event, _data) => {
     let reg = new RegExp("^\\d+$");
-    if (!reg.test(_char)) {
+    if (_data.length > 0 && !reg.test(_data)) {
       event.preventDefault();
     }
   }
-  ignoreNumbers = (event) => {
-    let _char = event.key;
-    let reg = new RegExp("[a-zA-Z ]");
-    if (!reg.test(_char)) {
+  alphaOnly = (event, _data) => {
+    let reg = new RegExp("^[a-zA-Z ]+$");
+    if (_data.length > 0 && !reg.test(_data)) {
       event.preventDefault();
+      return;
     }
+  }
+  nameKeyPress = (event) => {
+    let _data = event.key;
+    this.alphaOnly(event, _data);
   }
   namePaste = (event) => {
     let _data = event.clipboardData.getData('Text');
-    if (_data.length > 0) {
-      console.log(_data);
-      let reg = new RegExp("^[a-zA-Z ]+$");
-      if (!reg.test(_data)) {
-        event.preventDefault();
-        return;
-      }
-    }
+    this.alphaOnly(event, _data);
+  }
+  ssnKeyPress = (event) => {
+    let _data = event.key;
+    this.numOnly(event, _data);
   }
   ssnPaste = (event) => {
     let _data = event.clipboardData.getData('Text');
-    if (_data.length > 0) {
-      let reg = new RegExp("^\\d+$");
-      if (!reg.test(_data)) {
-        event.preventDefault();
-        return;
-      }
-    }
+    this.numOnly(event, _data);
   }  
   ssnFormat = (event) => {
     let _ssn = event.target.value;
@@ -93,7 +87,7 @@ class App extends Component {
         <div>
           <span className="ui-float-label">
               <label htmlFor="num-ssn">Name: </label>
-              <InputText id="num-ssn" type="text" size="30" onPaste={this.namePaste.bind(this)} onKeyPress={this.ignoreNumbers} onChange={(e) => this.setState({name: e.target.value})} />
+              <InputText id="num-ssn" type="text" size="30" onPaste={this.namePaste.bind(this)} onKeyPress={this.nameKeyPress} onChange={(e) => this.setState({name: e.target.value})} />
           </span>
         </div>
         <div>
