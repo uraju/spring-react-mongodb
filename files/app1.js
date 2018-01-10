@@ -3,6 +3,15 @@ import logo from './logo.svg';
 import './App.css';
 import {InputText} from 'primereact/components/inputtext/InputText';
 
+if (!String.prototype.endsWith) {
+	String.prototype.endsWith = function(search, this_len) {
+		if (this_len === undefined || this_len > this.length) {
+			this_len = this.length;
+		}
+        return this.substring(this_len - search.length, this_len) === search;
+	};
+}
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -115,5 +124,5 @@ class App extends Component {
     );
   }
 }
-
+ 
 export default App;
