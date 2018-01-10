@@ -13,13 +13,21 @@ class App extends Component {
     }
   }  
   numOnly = (event, _data) => {
+    let _ssn = event.target.value;
+    //console.log("ssn " + _ssn + ", length: " + _ssn.length + ", key: " + _data);
+    if (_data === '-'){
+      if(_ssn.length === 3 || _ssn.length === 6) {
+        return;
+      }
+    }
     let reg = new RegExp("^\\d+$");
     if (_data.length > 0 && !reg.test(_data)) {
       event.preventDefault();
+      return;
     }
   }
   alphaOnly = (event, _data) => {
-    let reg = new RegExp("^[a-zA-Z ]+$");
+    let reg = new RegExp("^[a-zA-Z-_' ]+$");
     if (_data.length > 0 && !reg.test(_data)) {
       event.preventDefault();
       return;
@@ -43,23 +51,34 @@ class App extends Component {
   }  
   ssnFormat = (event) => {
     let _ssn = event.target.value;
+    let _hasIfun = false; 
     let _ssnf = '';
+    if (_ssn.length > 0) {
+      _hasIfun = _ssn.endsWith("-");
+      _ssn = _ssn.replace(/[-]/g, "");
+    }
     switch(_ssn.length) {
       case 9:
+      case 8:
+      case 7:
+      case 6:
         _ssnf = _ssn.substr(0,3) + '-' + _ssn.substr(3,2) + '-' + _ssn.substr(5,4);
         break;
-      case 8:
-        _ssnf = _ssn.substr(0,3) + '-' + _ssn.substr(3,5);
-        break;
-      case 7:
-        _ssnf = _ssn.substr(0,3) + '-' + _ssn.substr(3,4);
+      case 5:
+      case 4:
+        _ssnf = _ssn.substr(0,3) + '-' + _ssn.substr(3,2);
         break;
       default:
         _ssnf = _ssn;
         break;
     }
-    //console.log(_ssnf);
+    if (_hasIfun) {
+      _ssnf = _ssnf + '-';
+    }
+    // console.log("at end: " + _ssnf);
     this.setState({ssnf: _ssnf});
+    this.setState({ssn: _ssnf});
+    event.target.value = _ssnf;
   }
   render() {
     return (
@@ -74,7 +93,7 @@ class App extends Component {
         <div>
           <span className="ui-float-label">
               <label htmlFor="num-ssn">SSN: </label>
-              <InputText id="num-ssn" type="text" size="30" onPaste={this.ssnPaste.bind(this)} onKeyPress={this.ssnKeyPress.bind(this)} onChange={this.ssnFormat.bind(this)} onBlur={(e) => this.setState({ssn: e.target.value})} />
+              <InputText id="num-ssn" type="text" size="30" onPaste={this.ssnPaste.bind(this)} onKeyPress={this.ssnKeyPress.bind(this)} onChange={this.ssnFormat.bind(this)} />
           </span>
         </div>
         <div>
