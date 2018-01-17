@@ -1,0 +1,9 @@
+.head-link {
+  text-decoration:underline;
+  cursor: pointer;
+}
+.right {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+}
