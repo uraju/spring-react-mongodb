@@ -1,0 +1,35 @@
+
+// display server version
+db.version();
+
+// detailed server status
+db.serverStatus();
+
+// insert some documents into "mybooks" collection
+db.mybooks.insertMany( [
+  { name: "Bala", status: "A", documents: [ { id: "report1", text: "this is page 0 --break-- this is page 1 --break-- this is page 2 --break-- this is page 3 --break-- this is page 4 --break-- this is page 5 --break-- this is page 6 --break-- this is page 7 --break-- this is page 8 --break-- this is page 9 --break-- this is page 10 --break-- this is page 11 --break-- this is page 12" } ] },
+  ,{ name: "Raman", status: "A", documents: [ { id: "report1", text: "this is page 0 --break-- this is page 1 --break-- this is page 2 --break-- this is page 3 --break-- this is page 4 --break-- this is page 5 --break-- this is page 6 --break-- this is page 7 --break-- this is page 8 --break-- this is page 9 --break-- this is page 10 --break-- this is page 11 --break-- this is page 12" } ] },
+  ,{ name: "Uma", status: "A", documents: [ { id: "report1", text: "this is page 0 --break-- this is page 1 --break-- this is page 2 --break-- this is page 3 --break-- this is page 4 --break-- this is page 5 --break-- this is page 6 --break-- this is page 7 --break-- this is page 8 --break-- this is page 9 --break-- this is page 10 --break-- this is page 11 --break-- this is page 12" } ] },
+  ,{ name: "Raju", status: "A", documents: [ { id: "report1", text: "this is page 0 --break-- this is page 1 --break-- this is page 2 --break-- this is page 3 --break-- this is page 4 --break-- this is page 5 --break-- this is page 6 --break-- this is page 7 --break-- this is page 8 --break-- this is page 9 --break-- this is page 10 --break-- this is page 11 --break-- this is page 12" } ] },
+  ,{ name: "Devi", status: "A", documents: [ { id: "report1", text: "this is page 0 --break-- this is page 1 --break-- this is page 2 --break-- this is page 3 --break-- this is page 4 --break-- this is page 5 --break-- this is page 6 --break-- this is page 7 --break-- this is page 8 --break-- this is page 9 --break-- this is page 10 --break-- this is page 11 --break-- this is page 12" }, { id: "report2", text: "this is page 0 --break-- this is page 1 --break-- this is page 2 --break-- this is page 3 --break-- this is page 4 --break-- this is page 5 --break-- this is page 6 --break-- this is page 7 --break-- this is page 8 --break-- this is page 9 --break-- this is page 10 --break-- this is page 11 --break-- this is page 12" } ] },
+  ,{ name: "Arul", status: "A", documents: [ { id: "report3", text: "this is page 0 --break-- this is page 1 --break-- this is page 2 --break-- this is page 3 --break-- this is page 4 --break-- this is page 5 --break-- this is page 6 --break-- this is page 7 --break-- this is page 8 --break-- this is page 9 --break-- this is page 10 --break-- this is page 11 --break-- this is page 12" }, { id: "report4", text: "this is page 0 --break-- this is page 1 --break-- this is page 2 --break-- this is page 3 --break-- this is page 4 --break-- this is page 5 --break-- this is page 6 --break-- this is page 7 --break-- this is page 8 --break-- this is page 9 --break-- this is page 10 --break-- this is page 11 --break-- this is page 12" } ] },
+]);
+
+let data = db.mybooks.aggregate( [ 
+	  {$match : { name : "Arul"} }
+	, {$unwind : "$documents" }
+	, {$project: {name:1, status:1, docid: "$documents.id", text: { $split: ["$documents.text", "--break-- "]} } }
+	, {$project: {name:1, status:1, docid: 1, text: 1 , totalPage: {$size: "$text"}} }
+	, {$unwind : "$text" }
+	, {$match : { docid : "report4"} }
+	, {$project:{_id: 0, docid:1, text:1, totalPage: 1}}
+	, {$skip: 2}
+	, {$limit: 4}
+	])
+	
+	let query={
+	  data : data,
+	  ann : ann
+	}
+	retrun query;
+  
