@@ -4,7 +4,7 @@
 
 <p id="demo"></p>
 <p id="arr"></p>
-<p id="arr1"></p>
+<div style="white-space: pre-wrap" id="arr1"></div>
 <script>
 document.getElementById("demo").innerHTML = 
     (parseInt("10") + parseInt("10")) + "<br>" +
@@ -12,7 +12,7 @@ document.getElementById("demo").innerHTML =
     parseInt("10 6") + "<br>" +    
     parseInt("10 years") + "<br>" +    
     parseInt("years 10");   
-const sdrCount = [ { docType: '0000', docCount: 14 }, { docType: '0001', docCount: 4 },{ docType: '0002', docCount: 5 } ,{ docType: '0003', docCount: 'none' }  ];
+const sdrCount = [ { docType: '0000', docCount: 17 }, { docType: '0001', docCount: 4 },{ docType: '0002', docCount: 5 } ,{ docType: '0003', docCount: 'none' }  ];
 let sum = 0;
 sdrCount.forEach((elem, index) => {if (!isNaN(elem.docCount)) {
 	sum = sum + parseInt(elem.docCount);
@@ -24,7 +24,8 @@ sdrCountWithTotal.sdrCount = sdrCount;
 sdrCountWithTotal.sdrCountTotal = sum;
 console.log(sum);
 document.getElementById("arr").innerHTML = 'Total: ' + sum;
-document.getElementById("arr1").innerHTML = JSON.stringify(sdrCountWithTotal);
+let data = JSON.stringify(sdrCountWithTotal, null, '\t');
+document.getElementById("arr1").innerHTML = data.replace(/(?:\r\n|\r|\n)/g, '<br />');
 </script>
 
 </body>
