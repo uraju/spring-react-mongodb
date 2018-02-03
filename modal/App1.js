@@ -20,7 +20,19 @@ export default class App extends Component {
         "field2": "value2"
     };
     const data2 = { "test": 123, "others": [ { "abc": 1 }, { "xyz": 999 } ] };
-    const { node, open, dimmer  } = this.state
+    const { node, open, dimmer  } = this.state;
+
+    const sdrCount = [ { docType: '0000', docCount: 14 }, { docType: '0001', docCount: 4 },{ docType: '0002', docCount: 5 } ,{ docType: '0003', docCount: 'none' }  ];
+    let sum = 0;
+    sdrCount.forEach((elem, index) => {if (!isNaN(elem.docCount)) {
+        sum = sum + parseInt(elem.docCount);
+        } //end if
+    return sum;
+    }) // end forEach
+    let sdrCountWithTotal = {};
+    sdrCountWithTotal.sdrCount = sdrCount;
+    sdrCountWithTotal.sdrCountTotal = sum;
+
 
     return (
         <Container style={{ marginTop: '3em' }}>
@@ -132,8 +144,12 @@ export default class App extends Component {
         <ReactJson theme="monokai" src={data1} />
         <hr />
         <br />
-        <p>Data with solarized theme</p>
-        <ReactJson theme="solarized" src={data2} />
+        <p>sdrCount Data with solarized theme</p>
+        <ReactJson theme="solarized" src={sdrCount} />
+        <hr />
+        <br />
+        <p>sdrCountWithTotal Data with solarized theme</p>
+        <ReactJson theme="solarized" src={sdrCountWithTotal} />
         <hr />
         <br />
       </Modal.Description>
@@ -150,4 +166,3 @@ export default class App extends Component {
     )
   }
 }
-
