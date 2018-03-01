@@ -56,6 +56,7 @@ class App extends Component {
   }
   ssnPaste = (event) => {
     let _data = event.clipboardData.getData('Text');
+    _data = _data.replace(/-/g, '');
     this.numOnly(event, _data);
   }  
   ssnFormat = (event) => {
