@@ -290,7 +290,7 @@ function getSelectionCharOffsetsWithin() {
         var _idx = 0, _tx='', _tx1='';
         let _st = offsetStart, _en = offsetEnd;
         console.log(computedDesc);
-        if (-1 != _end) { // TODO: change to while
+        while (-1 != _end) { // TODO: change to while
             console.log('P_END');
             _en = _st + _end;
             result = {
@@ -302,17 +302,20 @@ function getSelectionCharOffsetsWithin() {
             results.push(result);
             _tx1 = pageHTML.substring(offsetEnd, (offsetEnd + P_END.length)); 
             offsetEnd = offsetEnd + P_END.length;
-            computedDesc = computedDesc + _tx1;
+            _tx = computedDesc.substring(0,_end);
+            computedDesc = _tx + computedDesc.substring(_end + P_END.length) + _tx1;
+            console.log(computedDesc);
             _end = computedDesc.indexOf(P_START, _end);
             if (-1 != _end) {
                 _st = offsetStart + _end + P_START.length;
                 _tx1 = pageHTML.substring(offsetEnd, (offsetEnd + P_START.length));
                 offsetEnd = offsetEnd + P_START.length;
-                computedDesc = computedDesc + _tx1;
+                _tx = computedDesc.substring(0,_end);
+                computedDesc = _tx + computedDesc.substring(_end + P_START.length) + _tx1;
                 _en = _st + _end;
                 console.log(computedDesc);
+                _end = computedDesc.indexOf(P_END);  //TODO: back to while loop
             }
-            _end = computedDesc.indexOf(P_END);  //TODO: back to while loop
             _idx++;
             if (idx > 3) {
                 //break;
