@@ -84,7 +84,11 @@ cleanSpanCircularSingle = (html) => {
     //console.log(end);
     if (end > -1) {
         //console.log('cleanSpanCircular End ' + end);
-        html = html.substring(end + TAG_SPAN_CLOSE.length); // add length of </span>
+        html = html.substring(end + TAG_SPAN_CLOSE.length); 
+        if (html.substring(0,1) == ' '){
+            html.substring(1);  // VERIFY for two spaces 
+        }
+        // add length of </span> + one space ' '
         //console.log(html);
         html = _html + html;
         //console.log('cleanSpanCircular Leftofer')
@@ -95,12 +99,12 @@ cleanSpanCircularSingle = (html) => {
 
 function getSelectionCharOffsetsWithin() {
     var start = 0, end = 0, text='', circleSpansTextLength = 0, circularOnly = false;
-    var sel, range, priorRange, spanRange, spanStart = true;
+    var sel, range, priorRange, spanRange, doRangeOffsetSpan = false;
     var snippet, page, loop;
     sel = window.getSelection();
     let tag, pageHTML, pageOriginal, snippetOuterHTML, sinppetIndex =0, cnt;
     let rangeOffset = 0, offsetStart = 0, offsetEnd = 0, snippetText = '', description = '', computedDesc='';
-    let elm, elm1, elmStart, elmEnd, elmList=[];
+    let elm, elm1, elmStart, elmEnd, elmList=[], noOrphanTag = true;
     //console.log(window.getSelection())
     if (typeof window.getSelection() != "undefined" ) {
         try {
@@ -115,6 +119,16 @@ function getSelectionCharOffsetsWithin() {
             elm = elmStart.nextSibling;
             while((elm != null) && !(elm.isSameNode(elmEnd) || elm.isSameNode(elmStart))) {
                 console.log(elm);
+                if (elm.hasChildNodes) {
+                    elm1 = elm.childNodes[0];
+                    console.log(elm1);
+                    if (elm1) {
+                        if (elm1.isEqualNode(elmEnd)) {
+                            console.log('operlaping span')
+                            break;
+                        }
+                    }
+                }
                 elmList.push(elm);
                 elm = elm.nextSibling;
             }
@@ -126,13 +140,14 @@ function getSelectionCharOffsetsWithin() {
         // subtracted for start offset
         if (elmList.length > 1) {
             for (var idx = 0; idx < (elmList.length - 1); idx++) {
-                elm1 = elmList[idx];
-                if (elm1.hasChildNodes) {
-                    elm = elm1.childNodes[1];
-                    console.log(elm);
-                    if (elm != null) {
-                        if(elm.outerHTML.startsWith(TAG_SPAN_CIRCLE_START)){
-                            circleSpansTextLength = circleSpansTextLength + elm.innerText.length;
+                elm = elmList[idx];
+                if (elm.hasChildNodes) {
+                    doRangeOffsetSpan = true;
+                    elm1 = elm.childNodes[1];
+                    console.log(elm1);
+                    if (elm1 != null) {
+                        if(elm1.outerHTML.startsWith(TAG_SPAN_CIRCLE_START)){
+                            circleSpansTextLength = circleSpansTextLength + elm1.innerText.length;
                             console.log('circleSpansTextLength ' + circleSpansTextLength);
                         }
                     }
@@ -153,24 +168,31 @@ function getSelectionCharOffsetsWithin() {
         tag = snippet.outerHTML;
         if (tag.startsWith(TAG_SPAN_START)) {
             if (!tag.startsWith(TAG_SPAN_CIRCLE_START)) {
-                spanStart = true;
+                doRangeOffsetSpan = true;
             }
         }
         //console.log('snippet');
         //console.log(snippet);
         //console.log(tag);
-        while (!(tag.startsWith('<p') || tag.startsWith('<P')|| tag.startsWith('<body') || tag.startsWith('<BODY'))) {
-            snippet = snippet.parentElement;
-            tag = snippet.outerHTML;
-            //console.log(tag);
-        }
-        page = snippet.parentElement;
-        //console.log('page');
-        tag = page.outerHTML;
-        while (!(tag.startsWith('<div') || tag.startsWith('<DIV')|| tag.startsWith('<body') || tag.startsWith('<BODY'))) {
-            page = page.parentElement;
+        if (tag.startsWith('<div')) {
+            noOrphanTag = false;
+            page = snippet;
+        } else {
+            while (!(tag.startsWith('<p') || tag.startsWith('<P')|| tag.startsWith('<body') || tag.startsWith('<BODY'))) {
+                snippet = snippet.parentElement;
+                console.log(tag);
+                tag = snippet.outerHTML;
+            }
+            page = snippet.parentElement;
             tag = page.outerHTML;
-            //console.log(page);
+            console.log('page');
+            console.log(page);
+            console.log(tag);
+            while (!(tag.startsWith('<div') || tag.startsWith('<DIV')|| tag.startsWith('<body') || tag.startsWith('<BODY'))) {
+                page = page.parentElement;
+                console.log(page);
+                tag = page.outerHTML;
+            }
         }
         //console.log(range.startContainer);
         //console.log(snippet);
@@ -186,7 +208,7 @@ function getSelectionCharOffsetsWithin() {
         rangeOffset = range.startOffset;
         console.log('rangeOffset: ' + rangeOffset);
         cnt = 0;
-        if (spanStart) {
+        if (doRangeOffsetSpan) {
             var dup = snippet.cloneNode();
             spanRange = document.createRange();
 
@@ -223,17 +245,24 @@ function getSelectionCharOffsetsWithin() {
         //console.log(range.endContainer);
         //console.log('range.commonAncestorContainer');
         //console.log(range.commonAncestorContainer);
-        //console.log('pageHTML: ');
-        //console.log(pageHTML);
+        console.log('pageHTML: ');
+        console.log(pageHTML);
         console.log('snippetOuterHTML: ');
         console.log(snippetOuterHTML);
-        //console.log('priorRange toString: ' + priorRange.toString().length);
-        //onsole.log(priorRange.toString());
-        sinppetIndex = count(priorRange.toString(), snippetOuterHTML)
-        //console.log('sinppetIndex ' + sinppetIndex);
-        offsetStart = pageHTML.indexOf(snippetOuterHTML); // snippet tag start
-        //console.log(offsetStart);
-        snippetText = snippetOuterHTML;
+        console.log('priorRange toString: ' + priorRange.toString().length);
+        console.log(priorRange.toString());
+        if(noOrphanTag){
+            sinppetIndex = count(priorRange.toString(), snippetOuterHTML); // check repeats
+            offsetStart = pageHTML.indexOf(snippetOuterHTML); // snippet tag start
+            snippetText = snippetOuterHTML;
+        } else { //VERIFY THIS
+            snippetText = elmStart.nodeValue;
+            sinppetIndex = count(priorRange.toString(), snippetText)
+            offsetStart = pageHTML.indexOf(snippetText);
+            snippetOuterHTML = snippetText;
+        }
+        console.log('sinppetIndex ' + sinppetIndex);
+        console.log(offsetStart);
         cnt = 0;
         while (cnt < sinppetIndex) {
             cnt++;
@@ -246,6 +275,10 @@ function getSelectionCharOffsetsWithin() {
         description = range.toString();
         offsetStart = offsetStart + rangeOffset;
         offsetEnd = offsetStart + description.length - circleSpansTextLength;
+        // if(!noOrphanTag){
+        //     offsetStart = start;
+        //     offsetEnd = end;
+        // }
         computedDesc = pageHTML.substring(offsetStart, offsetEnd);
         if (description == computedDesc) {
             //console.log('description == computedDesc ' + description)
@@ -285,7 +318,7 @@ function getSelectionCharOffsetsWithin() {
         pageHTML: pageHTML,
         offsetStart: offsetStart,
         offsetEnd: offsetEnd,
-        snippetText: snippetOuterHTML,
+        snippetText: snippetText,
         description: description,
         computedDesc: computedDesc,
         start: start,
@@ -325,12 +358,17 @@ function clearSelection() {
     <div id="selectDiv1">
         <p>So, <span>you cold?</span></p>
         <p>yes</p><p>no</p>
-        <p></p> text with no p tag
-        <p>
+        <p></p> 
+        text with no p tag
+        text with no p tag
+        text with no p tagXX
+        text with no p tag
+        
         <p>Do you see any <span class="ui grey label">Teletubbies in here? Do you see a slender <span class="ui red circular label">200</span></span> plastic tag clipped to my shirt with my name printed on it? Do you see a little Asian child with a blank <span class="ui green label">expression on his face sitting outside on a mechanical helicopter<span class="ui red circular label">3</span></span> that shakes when you put quarters in it? No? Well, that's what you see at a toy store. And you must think you're in a toy store, because you're here shopping for an infant named Jeb. </p>
 
         <p>So, <span>you cold?</span></p>
         <p>The path of the righteous man is beset on all sides by the iniquities of the selfish and the tyranny of evil men. Blessed is he who, in the name of charity and good will, shepherds the weak through the valley of darkness, for he is truly his brother's keeper and the finder of lost children. And I will strike down upon thee with great vengeance and furious anger those who would attempt to poison and destroy My brothers. And you will know My name is the Lord when I lay My vengeance upon thee. </p>
+        text with no p tag
 
         <p>I'm serious as a heart attack</p>
         <p>Do you see any Teletubbies in here? Do you see a slender plastic tag clipped to my shirt with my name printed on it? Do you see a little Asian child with a blank expression on his face sitting outside on a mechanical helicopter that shakes when you put quarters in it? No? Well, that's what you see at a toy store. And you must think you're in a toy store, because you're here shopping for an infant named Jeb. </p>
