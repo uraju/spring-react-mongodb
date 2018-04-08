@@ -16,7 +16,7 @@
         return (inputString.match(new RegExp(subStr, 'gi')) || []).length;
     };
     cleanAllSpans = (html) => {
-        console.log('in cleanAllSpans');
+        // console.log('in cleanAllSpans');
         return cleanSpan(cleanSpanCircular(html));
     };
     cleanSpan = (html) => {
@@ -95,11 +95,11 @@ cleanSpanCircularSingle = (html) => {
 
 function getSelectionCharOffsetsWithin() {
     var start = 0, end = 0, text='', circularOnly = false;
-    var sel, range, priorRange;
+    var sel, range, priorRange, spanRange, spanStart = true;
     var snippet, page, loop;
     sel = window.getSelection();
     let tag, pageHTML, pageOriginal, snippetOuterHTML, sinppetIndex =0, cnt;
-    let offsetStart = 0, offsetEnd = 0, snippetText = '', description = '', computedDesc='';
+    let rangeOffset = 0, offsetStart = 0, offsetEnd = 0, snippetText = '', description = '', computedDesc='';
 
     console.log(window.getSelection())
     if (typeof window.getSelection() != "undefined" ) {
@@ -115,23 +115,30 @@ function getSelectionCharOffsetsWithin() {
             circularOnly = true;
         }
         snippet = range.startContainer.parentElement;
-        console.log('snippet');
-        console.log(snippet);
         tag = snippet.outerHTML;
-        console.log(tag);
+        if (tag.startsWith(TAG_SPAN_START)) {
+            if (!tag.startsWith(TAG_SPAN_CIRCLE_START)) {
+                spanStart = true;
+            }
+        }
+        //console.log('snippet');
+        //console.log(snippet);
+        //console.log(tag);
         while (!(tag.startsWith('<p') || tag.startsWith('<P')|| tag.startsWith('<body') || tag.startsWith('<BODY'))) {
             snippet = snippet.parentElement;
             tag = snippet.outerHTML;
-            console.log(tag);
+            //console.log(tag);
         }
         page = snippet.parentElement;
-        console.log('page');
+        //console.log('page');
         tag = page.outerHTML;
         while (!(tag.startsWith('<div') || tag.startsWith('<DIV')|| tag.startsWith('<body') || tag.startsWith('<BODY'))) {
             page = page.parentElement;
             tag = page.outerHTML;
-            console.log(page);
+            //console.log(page);
         }
+        console.log(range.startContainer);
+        console.log(snippet);
         pageOriginal = page.outerHTML;
         pageHTML = cleanAllSpans(pageOriginal);
         snippetOuterHTML = cleanAllSpans(snippet.innerHTML);        
@@ -141,10 +148,23 @@ function getSelectionCharOffsetsWithin() {
         start = priorRange.toString().length;
         end = start + range.toString().length;
         text = range.toString();
-        console.log('*************************************************');
-        console.log('window.getSelection() ---------------------------');
-        console.log('*************************************************');
-        console.log('range: ');
+        rangeOffset = range.startOffset;
+        console.log('rangeOffset: ' + rangeOffset);
+        if (spanStart) {
+            spanRange = document.createRange();
+
+            //range.setStart(startNode, startOffset);
+            //range.setEnd(endNode, endOffset);
+            //spanRange = range.cloneRange();
+            spanRange.selectNodeContents(snippet);
+            spanRange.setEnd(range.startContainer, range.startOffset);
+            rangeOffset = spanRange.toString().length;
+            console.log('rangeOffset In span: ' + rangeOffset);
+        } 
+        //console.log('*************************************************');
+        //console.log('window.getSelection() ---------------------------');
+        //console.log('*************************************************');
+        //console.log('range: ');
         console.log(range);
         //console.log('range.startContainer.parentNode');
         //console.log(range.startContainer.parentNode);
@@ -158,23 +178,23 @@ function getSelectionCharOffsetsWithin() {
         //console.log(range.commonAncestorContainer.innerHTML);
         //console.log('range.commonAncestorContainer.innerText');
         //console.log(range.commonAncestorContainer.innerText);
-        console.log('-------------------------------------------------');
+        //console.log('-------------------------------------------------');
         //console.log('range.startContainer');
         //console.log(range.startContainer);
         //console.log('range.endContainer');
         //console.log(range.endContainer);
         //console.log('range.commonAncestorContainer');
         //console.log(range.commonAncestorContainer);
-        console.log('pageHTML: ');
-        console.log(pageHTML);
-        console.log('snippetOuterHTML: ');
-        console.log(snippetOuterHTML);
+        //console.log('pageHTML: ');
+        //console.log(pageHTML);
+        //console.log('snippetOuterHTML: ');
+        //console.log(snippetOuterHTML);
         //console.log('priorRange toString: ' + priorRange.toString().length);
         //onsole.log(priorRange.toString());
         sinppetIndex = count(priorRange.toString(), snippetOuterHTML)
-        console.log('sinppetIndex ' + sinppetIndex);
+        //console.log('sinppetIndex ' + sinppetIndex);
         offsetStart = pageHTML.indexOf(snippetOuterHTML); // snippet tag start
-        console.log(offsetStart);
+        //console.log(offsetStart);
         snippetText = snippetOuterHTML;
         cnt = 0;
         while (cnt < sinppetIndex) {
@@ -185,14 +205,19 @@ function getSelectionCharOffsetsWithin() {
                 offsetStart = pageHTML.indexOf(snippetOuterHTML, offsetStart);
             }
         }
-        offsetStart = offsetStart + range.startOffset;
-        offsetEnd = offsetStart + range.toString().length;
         description = range.toString();
+        offsetStart = offsetStart + rangeOffset;
+        offsetEnd = offsetStart + description.length;
         computedDesc = pageHTML.substring(offsetStart, offsetEnd);
+        if (description == computedDesc) {
+            console.log('description == computedDesc ' + description)
+        } else {
+            console.log('description <> computedDesc "' + description + '" "' + computedDesc + '"');
+        }
         //var documentFragment = cloneRange.extractContents();
         //console.log('documentFragment: ');
         //console.log(documentFragment);
-        console.log('*************************************************');
+        //console.log('*************************************************');
         } catch (error) {
             //DOM Exception
             console.log(error);
@@ -219,9 +244,10 @@ function getSelectionCharOffsetsWithin() {
     }
     */
     return {
+        pageHTML: pageHTML,
         offsetStart: offsetStart,
         offsetEnd: offsetEnd,
-        snippetText: snippetText,
+        snippetText: snippetOuterHTML,
         description: description,
         computedDesc: computedDesc,
         start: start,
