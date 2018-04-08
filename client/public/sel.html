@@ -139,7 +139,7 @@ function getSelectionCharOffsetsWithin() {
         console.log(elmList);
         console.log('elmList.length ' + elmList.length)
         // compute total circle span length (circleSpansTextLength) in seleted elmList, that needs to be
-        // subtracted for start offset
+        // subtracted for start offset, has issue subtracting length for last element
         if (elmList.length > 1) {
             for (var idx = 0; idx < (elmList.length - 1); idx++) {
                 elm = elmList[idx];
@@ -153,7 +153,14 @@ function getSelectionCharOffsetsWithin() {
                             console.log('circleSpansTextLength ' + circleSpansTextLength);
                         }
                     }
-                }
+                } 
+            }
+        }
+        let totalSnippet = ''; // used for snippet text for compined list
+        if (elmList.length > 1) {
+            for (var idx = 0; idx < elmList.length; idx++) {
+                elm = elmList[idx];
+                totalSnippet = totalSnippet + elm.nodeValue;
             }
         }
 
@@ -296,7 +303,7 @@ function getSelectionCharOffsetsWithin() {
             result = {
                 offsetStart: _st,
                 offsetEnd: _en,
-                snippetText: snippetText,
+                snippetText: totalSnippet,
                 description: description  // may need to replace with computedDesc
             }
             results.push(result);
@@ -326,7 +333,7 @@ function getSelectionCharOffsetsWithin() {
             result = {
                 offsetStart: _st,
                 offsetEnd: _en,
-                snippetText: snippetText,
+                snippetText: totalSnippet,
                 description: description  // may need to replace with computedDesc
             }
             results.push(result);
