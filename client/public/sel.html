@@ -17,15 +17,11 @@
     };
     cleanAllSpans = (html) => {
         console.log('in cleanAllSpans');
-        html = cleanSpanCircular(html);
-        console.log(html);
-        html = cleanSpan(html);
-        console.log(html);
-        return html;
+        return cleanSpan(cleanSpanCircular(html));
     };
     cleanSpan = (html) => {
         // removes all span tag entries
-        console.log('in cleanSpan');
+        //console.log('in cleanSpan');
         while (-1 < html.indexOf(TAG_SPAN_START)) {
             html = cleanSpanSingle(html);
         }
@@ -33,11 +29,11 @@
     };
     cleanSpanSingle = (html) => {
         // removes one single span, keeps data
-        console.log('in cleanSpanSingle')
+        //console.log('in cleanSpanSingle')
         let start = 0, end = 0, _html = '';
         start = html.indexOf(TAG_SPAN_START);
         if (start > -1) {
-            console.log('cleanSpan Start');
+            //console.log('cleanSpan Start');
             _html = html.substring(0,start);
             html = html.substring(start);
             //console.log(_html);
@@ -45,7 +41,7 @@
         }
         end = html.indexOf(">");
         if (end > -1) {
-            console.log('cleanSpan End');
+            //console.log('cleanSpan End');
             html = html.substring(end + 1); // add length of </span>
             //console.log(html);
             html = _html + html;
@@ -54,17 +50,17 @@
         }
         start = html.indexOf(TAG_SPAN_CLOSE);
         if (start > -1) {
-            console.log('cleanSpan TAG_SPAN_CLOSE');
+            //console.log('cleanSpan TAG_SPAN_CLOSE');
             _html = html.substring(0,start);
             html = _html + html.substring(start + TAG_SPAN_CLOSE.length);
             //console.log(_html);
-            console.log(html);
+            //console.log(html);
         }
         return html;
     };    
 cleanSpanCircular = (html) => {
     // removes all circular span and it's data
-    console.log('in cleanSpanCircular');
+    //console.log('in cleanSpanCircular');
     while (-1 < html.indexOf(TAG_SPAN_CIRCLE_START)) {
         html = cleanSpanCircularSingle(html);
     }
@@ -72,26 +68,26 @@ cleanSpanCircular = (html) => {
 };
 cleanSpanCircularSingle = (html) => {
     // removes single circular span and it's data
-    console.log('in cleanSpanCircularSingle')
-    console.log(html);
+    //console.log('in cleanSpanCircularSingle')
+    //console.log(html);
     let start = 0, end = 0, _html = '';
     start = html.indexOf(TAG_SPAN_CIRCLE_START);
-    console.log('start: ' + start);
+    //console.log('start: ' + start);
     if (start > -1) {
-        console.log('cleanSpanCircular Start ' + start);
+        //console.log('cleanSpanCircular Start ' + start);
         _html = html.substring(0,start);
         html = html.substring(start);
         //console.log(_html);
         //console.log(html);
     }
     end = html.indexOf(TAG_SPAN_CLOSE);
-    console.log(end);
+    //console.log(end);
     if (end > -1) {
-        console.log('cleanSpanCircular End ' + end);
+        //console.log('cleanSpanCircular End ' + end);
         html = html.substring(end + TAG_SPAN_CLOSE.length); // add length of </span>
         //console.log(html);
         html = _html + html;
-        console.log('cleanSpanCircular Leftofer')
+        //console.log('cleanSpanCircular Leftofer')
         //console.log(html);
     }
     return html;
@@ -169,14 +165,30 @@ function getSelectionCharOffsetsWithin() {
         //console.log(range.endContainer);
         //console.log('range.commonAncestorContainer');
         //console.log(range.commonAncestorContainer);
-        //console.log('page toString: ');
-        //console.log(pageHTML);
-        //console.log('snippet toString: ');
-        //console.log(snippetOuterHTML);
+        console.log('pageHTML: ');
+        console.log(pageHTML);
+        console.log('snippetOuterHTML: ');
+        console.log(snippetOuterHTML);
         //console.log('priorRange toString: ' + priorRange.toString().length);
         //onsole.log(priorRange.toString());
         sinppetIndex = count(priorRange.toString(), snippetOuterHTML)
         console.log('sinppetIndex ' + sinppetIndex);
+        offsetStart = pageHTML.indexOf(snippetOuterHTML); // snippet tag start
+        console.log(offsetStart);
+        snippetText = snippetOuterHTML;
+        cnt = 0;
+        while (cnt < sinppetIndex) {
+            cnt++;
+            console.log(cnt);
+            if (-1 < pageHTML.indexOf(snippetOuterHTML, offsetStart)) {
+                console.log(offsetStart);
+                offsetStart = pageHTML.indexOf(snippetOuterHTML, offsetStart);
+            }
+        }
+        offsetStart = offsetStart + range.startOffset;
+        offsetEnd = offsetStart + range.toString().length;
+        description = range.toString();
+        computedDesc = pageHTML.substring(offsetStart, offsetEnd);
         //var documentFragment = cloneRange.extractContents();
         //console.log('documentFragment: ');
         //console.log(documentFragment);
@@ -207,10 +219,15 @@ function getSelectionCharOffsetsWithin() {
     }
     */
     return {
+        offsetStart: offsetStart,
+        offsetEnd: offsetEnd,
+        snippetText: snippetText,
+        description: description,
+        computedDesc: computedDesc,
         start: start,
         end: end,
-        text: text
-        , circularOnly: circularOnly
+        text: text, 
+        circularOnly: circularOnly
     };
 }
 
@@ -242,6 +259,7 @@ function clearSelection() {
 <input type="button" onclick="clearSelection()" unselectable="on" value="Reset results">
 <div id="main">
     <div id="selectDiv1">
+        <p>So, <span>you cold?</span></p>
         <p>yes</p><p>no</p>
         <p></p> text with no p tag
         <p>
