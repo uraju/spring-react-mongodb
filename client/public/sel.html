@@ -3,48 +3,124 @@
 <head>
         <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.12/semantic.min.css"></link>
 <script>
+    let TAG_SPAN_CIRCLE_START = '<span class="ui red circular';
+    let TAG_SPAN_START = '<span';
+    let TAG_SPAN_CLOSE = '</span>';
+    count = (inputString, searachString) => {
+        inputString += '';
+        searachString += '';
+        if (searachString.length <= 0) {
+            return 0;
+        }
+        var subStr = searachString.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return (inputString.match(new RegExp(subStr, 'gi')) || []).length;
+    };
+    cleanAllSpans = (html) => {
+        console.log('in cleanAllSpans');
+        html = cleanSpanCircular(html);
+        console.log(html);
+        html = cleanSpan(html);
+        console.log(html);
+        return html;
+    };
+    cleanSpan = (html) => {
+        // removes all span tag entries
+        console.log('in cleanSpan');
+        while (-1 < html.indexOf(TAG_SPAN_START)) {
+            html = cleanSpanSingle(html);
+        }
+        return html;
+    };
+    cleanSpanSingle = (html) => {
+        // removes one single span, keeps data
+        console.log('in cleanSpanSingle')
+        let start = 0, end = 0, _html = '';
+        start = html.indexOf(TAG_SPAN_START);
+        if (start > -1) {
+            console.log('cleanSpan Start');
+            _html = html.substring(0,start);
+            html = html.substring(start);
+            //console.log(_html);
+            //console.log(html);
+        }
+        end = html.indexOf(">");
+        if (end > -1) {
+            console.log('cleanSpan End');
+            html = html.substring(end + 1); // add length of </span>
+            //console.log(html);
+            html = _html + html;
+            //console.log('cleanSpanCircular Leftofer')
+            //console.log(html);
+        }
+        start = html.indexOf(TAG_SPAN_CLOSE);
+        if (start > -1) {
+            console.log('cleanSpan TAG_SPAN_CLOSE');
+            _html = html.substring(0,start);
+            html = _html + html.substring(start + TAG_SPAN_CLOSE.length);
+            //console.log(_html);
+            console.log(html);
+        }
+        return html;
+    };    
 cleanSpanCircular = (html) => {
+    // removes all circular span and it's data
     console.log('in cleanSpanCircular');
-    while (-1 < html.indexOf('<span class="ui red circular')) {
+    while (-1 < html.indexOf(TAG_SPAN_CIRCLE_START)) {
         html = cleanSpanCircularSingle(html);
     }
     return html;
 };
 cleanSpanCircularSingle = (html) => {
+    // removes single circular span and it's data
     console.log('in cleanSpanCircularSingle')
+    console.log(html);
     let start = 0, end = 0, _html = '';
-    start = html.indexOf('<span class="ui red circular');
+    start = html.indexOf(TAG_SPAN_CIRCLE_START);
+    console.log('start: ' + start);
     if (start > -1) {
-        console.log('cleanSpanCircular Start');
+        console.log('cleanSpanCircular Start ' + start);
         _html = html.substring(0,start);
         html = html.substring(start);
-        console.log(_html);
-        console.log(html);
+        //console.log(_html);
+        //console.log(html);
     }
-    end = html.indexOf("</span>");
+    end = html.indexOf(TAG_SPAN_CLOSE);
+    console.log(end);
     if (end > -1) {
-        console.log('cleanSpanCircular End');
-        html = html.substring(end + 7); // add length of </span>
-        console.log(html);
+        console.log('cleanSpanCircular End ' + end);
+        html = html.substring(end + TAG_SPAN_CLOSE.length); // add length of </span>
+        //console.log(html);
         html = _html + html;
         console.log('cleanSpanCircular Leftofer')
-        console.log(html);
+        //console.log(html);
     }
     return html;
 };
-function getSelectionCharOffsetsWithin(element) {
-    var start = 0, end = 0, text='';
+
+function getSelectionCharOffsetsWithin() {
+    var start = 0, end = 0, text='', circularOnly = false;
     var sel, range, priorRange;
     var snippet, page, loop;
     sel = window.getSelection();
-    let tag, pageHTML, pageOriginal, snippetOuterHTML;
+    let tag, pageHTML, pageOriginal, snippetOuterHTML, sinppetIndex =0, cnt;
+    let offsetStart = 0, offsetEnd = 0, snippetText = '', description = '', computedDesc='';
 
     console.log(window.getSelection())
     if (typeof window.getSelection() != "undefined" ) {
         try {
         range = window.getSelection().getRangeAt(0);
+        // always returns closest common parent on overlaping tags
+        tag = range.commonAncestorContainer.parentNode.outerHTML;
+        //console.log('range.commonAncestorContainer.parentNode.outerHTML');
+        //console.log(tag);
+        // test to make sure not just circluar annotion selected
+        if (tag.startsWith(TAG_SPAN_CIRCLE_START)) {
+            // reject and warn user as invalid selction in case of true
+            circularOnly = true;
+        }
         snippet = range.startContainer.parentElement;
         console.log('snippet');
+        console.log(snippet);
         tag = snippet.outerHTML;
         console.log(tag);
         while (!(tag.startsWith('<p') || tag.startsWith('<P')|| tag.startsWith('<body') || tag.startsWith('<BODY'))) {
@@ -61,8 +137,8 @@ function getSelectionCharOffsetsWithin(element) {
             console.log(page);
         }
         pageOriginal = page.outerHTML;
-        pageHTML = cleanSpanCircular(pageOriginal);
-        snippetOuterHTML = snippet.outerHTML;        
+        pageHTML = cleanAllSpans(pageOriginal);
+        snippetOuterHTML = cleanAllSpans(snippet.innerHTML);        
         priorRange = range.cloneRange();
         priorRange.selectNodeContents(page);
         priorRange.setEnd(range.startContainer, range.startOffset);
@@ -93,12 +169,14 @@ function getSelectionCharOffsetsWithin(element) {
         //console.log(range.endContainer);
         //console.log('range.commonAncestorContainer');
         //console.log(range.commonAncestorContainer);
-        console.log('page toString: ');
-        console.log(pageHTML);
-        console.log('snippet toString: ');
-        console.log(snippetOuterHTML);
-        console.log('priorRange toString: ' + priorRange.toString().length);
-        console.log(priorRange.toString());
+        //console.log('page toString: ');
+        //console.log(pageHTML);
+        //console.log('snippet toString: ');
+        //console.log(snippetOuterHTML);
+        //console.log('priorRange toString: ' + priorRange.toString().length);
+        //onsole.log(priorRange.toString());
+        sinppetIndex = count(priorRange.toString(), snippetOuterHTML)
+        console.log('sinppetIndex ' + sinppetIndex);
         //var documentFragment = cloneRange.extractContents();
         //console.log('documentFragment: ');
         //console.log(documentFragment);
@@ -107,7 +185,8 @@ function getSelectionCharOffsetsWithin(element) {
             //DOM Exception
             console.log(error);
         }
-    } else if (typeof document.selection != "undefined" &&
+    } 
+    /* else if (typeof document.selection != "undefined" &&
             (sel = document.selection).type != "Control") {
         range = sel.createRange();
         priorRange = document.body.createTextRange();
@@ -126,21 +205,24 @@ function getSelectionCharOffsetsWithin(element) {
         console.log(priorRange);
         console.log('*************************************************');
     }
+    */
     return {
         start: start,
         end: end,
         text: text
+        , circularOnly: circularOnly
     };
 }
 
 function printSelection() {
-    var mainDiv = document.getElementById("selectDiv");
-    var sel = getSelectionCharOffsetsWithin(mainDiv);
+    var sel = getSelectionCharOffsetsWithin();
     var pval = document.getElementById("result");
     var _txt = '';
     console.log('selection: ');
     console.log(sel);
-    if (sel.text.length > 0) {
+    if (sel.circularOnly) {
+        _txt = "Selected Cirular only, invalid text";
+    } else if (sel.text.length > 0) {
         _txt = "Start: " + sel.start + ", End: " + sel.end + ", Text: '" + sel.text + "', length: " + sel.text.length;
     } else {
         _txt = "No selection found.";
