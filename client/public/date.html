@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.12/semantic.min.css"></link>
+<script>
+let startDate = {
+        date: 14,
+        month: 05,
+        year: 2018
+}
+let endDate = {
+        date: 12,
+        month: 03,
+        year: 2017
+}
+
+
+function myFunction() {
+    let result= {
+        data: '',
+        desc: ''
+    }
+    if ((startDate.year == endDate.year)&&(startDate.month == endDate.month)&&(startDate.date == endDate.date)) {
+        result.data = startDate.year + '-' + startDate.month + '-' + startDate.date;
+        result.desc = 'Same Date';
+    } else {
+        if ((startDate.year == endDate.year)&&(startDate.month == endDate.month)) {
+            result.data = startDate.year + '-' + startDate.month;
+            result.desc = 'Same Month';                
+        } else {
+            if (startDate.year == endDate.year) {
+                result.data = startDate.year;
+                result.desc = 'Same Year';                
+            } else {
+                result.data = startDate.year + '-' + startDate.month + '-' + startDate.date;
+                result.desc = 'All different';
+            } 
+        }
+    }
+    document.getElementById("numb").value = result.data;
+    document.getElementById("demo").innerHTML = result.desc;
+}
+</script>
+</head>
+<body>
+    <h3 id="result" unselectable="on" >Date compate, click button</h3>
+    <br />
+    <div >
+        <input id="numb">
+        <br/>
+        <button type="button" onclick="myFunction()">Submit</button>
+        <br/>
+        <p id="demo"></p>
+    </div>
+</body>
+</html>
